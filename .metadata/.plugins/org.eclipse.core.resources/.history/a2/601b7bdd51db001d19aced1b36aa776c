@@ -1,0 +1,203 @@
+package com.hanati.library.data;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Scanner;
+
+import com.hanati.library.domian.model.BookLoan;
+import com.hanati.library.domian.repository.BookLoanRepository;
+
+public class BookLoanRepositorylmpl implements BookLoanRepository {
+	ArrayList<BookLoan> bookLaonList = new ArrayList<>();
+	Scanner scanner = new Scanner(System.in);
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	String driver = "oracle.jdbc.driver.OracleDriver";
+	String url = "jdbc:oracle:thin:@192.168.119.119:1521:dink";
+	String user = "scott";
+	String password = "tiger";
+	Calendar calendar = Calendar.getInstance();
+	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+	@Override
+	public List<BookLoan> loadBookLoan() {
+		bookLaonList.clear();
+		try {
+			String sql = "SELECT bookloan.*, book.title AS bookname, member.name AS membername\n"
+					+ "FROM bookloan\n"
+					+ "JOIN book ON bookloan.bookid = book.id\n"
+					+ "JOIN member ON bookloan.memberid = member.id ORDER BY deadline";
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, user, password);
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				int bookId = rs.getInt("bookId");
+				int memberId = rs.getInt("memberId");
+				String bookName = rs.getString("bookName");
+				String memberName = rs.getString("memberName");
+				boolean isextension = rs.getBoolean("isextension");
+				Date loanDate = rs.getDate("loanDate");
+				String formattedLoanDate = dateFormat.format(loanDate);
+				Date deadLine = rs.getDate("deadline");
+				String formatteddeadLine = dateFormat.format(deadLine);
+
+				BookLoan bookLoan = new BookLoan(id, bookId, memberId, bookName, memberName, isextension,
+						formattedLoanDate, formatteddeadLine);
+				bookLaonList.add(bookLoan);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		return bookLaonList;
+	}
+
+	@Override
+	public void save(List<BookLoan> bookLaonList) {
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, user, password);
+			conn.setAutoCommit(false);
+
+			for (BookLoan bookLoan : bookLaonList) {
+				// 중복되는 PhoneNumber가 있는지 확인
+				String checkSql = "SELECT * FROM bookloan WHERE bookid = ?";
+
+				pstmt = conn.prepareStatement(checkSql);
+				pstmt.setInt(1, bookLoan.getBookId());
+				rs = pstmt.executeQuery();
+				if (rs.next()) { // 중복되는 bookid가 있으면 continue
+					continue;
+				}
+
+				// 중복되는 PhoneNumber가 없으면 새로운 데이터로 저장
+				String sql = "INSERT INTO BOOKLOAN(id, bookid, memberid, isextension) VALUES (BOOKLOAN_SEQ.nextval, ?, ?, ?)";
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setInt(1, bookLoan.getBookId());
+				pstmt.setInt(2, bookLoan.getMemberId());
+				pstmt.setInt(3, 0);
+				pstmt.executeUpdate();
+				
+				// book 테이블에서 해당하는 bookid를 찾아 isreturned 값을 0으로 업데이트
+			    String updateSql = "UPDATE book SET isreturned = 0 WHERE id = ?";
+			    pstmt = conn.prepareStatement(updateSql);
+			    pstmt.setInt(1, bookLoan.getBookId());
+			    pstmt.executeUpdate();
+			}
+			
+
+			conn.commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			if (conn != null) {
+				try {
+					conn.rollback(); // 에러 발생 시 rollback
+				} catch (SQLException ex) {
+					ex.printStackTrace();
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			// 리소스 해제
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+
+	@Override
+	public void createBookLoan(BookLoan bookLoan) {
+		save(bookLoan.getBookLoanList());
+	}
+
+	@Override
+	public void readBookLoan(List<BookLoan> bookLoanList) {
+		List<BookLoan> bookLoans = new ArrayList<>();
+		bookLoans = loadBookLoan();
+		if(bookLoans.size() == 0) {
+			System.out.println("대출기록이 없습니다.");
+		}
+		for (BookLoan bookLoan : bookLoans) {
+			System.out.println("ID : " + bookLoan.getBookId() + "\t" + "도서(도서번호:"+bookLoan.getBookId()+"): " + bookLoan.getBookName() + "\t" + "회원(회원번호:"+bookLoan.getMemberId()+") : "
+					+ bookLoan.getMemberName() + "\t" + "연장여부 : " + bookLoan.isIsextension() + "\t" + "대출일 : "
+					+ bookLoan.getLoanDate() + "\t" + "반납기한 : " + bookLoan.getDeadline());
+		}
+
+	}
+
+	@Override
+	public void updateBookLoan(int bookid) {
+	    // bookLoan의 bookid와 일치하는 row를 찾음
+	    BookLoan bookLoan = bookLoanRepository.findByBookId(bookid);
+
+	    if (bookLoan != null && !bookLoan.isExtension()) { // isextension이 false일 때만 연장 가능
+	        // deadline을 2주 추가하여 갱신
+	        String deadline = bookLoan.getDeadline(); // deadline의 현재 값 (0000-00-00 형식)
+	        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	        try {
+	            Date deadlineDate = sdf.parse(deadline);
+	            Calendar calendar = Calendar.getInstance();
+	            calendar.setTime(deadlineDate);
+	            calendar.add(Calendar.DATE, 14); // deadline을 2주 추가
+	            deadline = sdf.format(calendar.getTime());
+	        } catch (ParseException e) {
+	            e.printStackTrace();
+	        }
+
+	        // bookLoan 엔티티를 갱신하여 연장을 반영하고 저장
+	        bookLoan.setExtension(true);
+	        bookLoan.setDeadline(deadline);
+	        bookLoanRepository.save(bookLoan);
+
+	        // book 테이블에서 해당 도서의 isreturned를 false로 변경
+	        Book book = bookRepository.findById(bookid).orElse(null);
+	        if (book != null) {
+	            book.setReturned(false);
+	            bookRepository.save(book);
+	        }
+	    }
+	}
+
+	@Override
+	public void deleteBookLoan(int id) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

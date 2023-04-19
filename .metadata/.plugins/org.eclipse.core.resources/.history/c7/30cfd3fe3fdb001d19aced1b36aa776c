@@ -1,0 +1,207 @@
+package com.hanati.library.data;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import com.hanati.library.domian.model.Member;
+import com.hanati.library.domian.repository.MemberRepository;
+
+public class MemberRepositorylmpl implements MemberRepository {
+	ArrayList<Member> memberList = new ArrayList<>();
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	PreparedStatement pstmtInsert = null;
+	ResultSet rs = null;
+	String driver = "oracle.jdbc.driver.OracleDriver";
+	String url = "jdbc:oracle:thin:@192.168.119.119:1521:dink";
+	String user = "scott";
+	String password = "tiger";
+	Calendar calendar = Calendar.getInstance();
+	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+	@Override
+	public List<Member> loadMember() {
+		try {
+			String sql = "SELECT * FROM MEMBER ORDER BY id";
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, user, password);
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String name = rs.getString("name");
+				String signupDay = rs.getString("signupday");
+				String address = rs.getString("address");
+				String phoneNumber = rs.getString("phonenumber");
+				String birthday = rs.getString("birthday");
+
+				int age = Integer.parseInt(signupDay.substring(0, 4)) - Integer.parseInt(birthday.substring(0, 4)) + 1;
+				Member member = new Member(id, name, signupDay, address, phoneNumber, birthday, age);
+				memberList.add(member);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		return memberList;
+	}
+
+	@Override
+	public void createMember(Member member) {
+		save(member.getMemberList());
+
+	}
+
+	@Override
+	public void updateMember(int id) {
+		
+
+	}
+
+	@Override
+	public void deleteMember(int id) {
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, user, password);
+			conn.setAutoCommit(false);
+
+			String delSql = "DELETE FROM member WHERE id = ?";
+			pstmt = conn.prepareStatement(delSql);
+			pstmt.setLong(1, id);
+			rs = pstmt.executeQuery();
+
+			conn.commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			if (conn != null) {
+				try {
+					conn.rollback();
+				} catch (SQLException ex) {
+					ex.printStackTrace();
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+
+	@Override
+	public void rollbackMember(Member member) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void save(List<Member> memberList) {
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, user, password);
+			conn.setAutoCommit(false);
+
+			for (Member member : memberList) {
+				// 중복되는 PhoneNumber가 있는지 확인
+				String checkSql = "SELECT * FROM member WHERE phonenumber = ?";
+				pstmt = conn.prepareStatement(checkSql);
+				pstmt.setString(1, member.getPhoneNumber());
+				rs = pstmt.executeQuery();
+				if (rs.next()) { // 중복되는 PhoneNumber가 있으면 continue
+					continue;
+				}
+
+				// 중복되는 PhoneNumber가 없으면 새로운 데이터로 저장
+				String sql = "INSERT INTO MEMBER(id, name, address, phonenumber, birthday) VALUES (MEMBER_SEQ.nextval, ?, ?, ?, ?)";
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, member.getName());
+				pstmt.setString(2, member.getAddress());
+				pstmt.setString(3, member.getPhoneNumber());
+				pstmt.setString(4, member.getBirthday());
+				pstmt.executeUpdate();
+			}
+
+			conn.commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			if (conn != null) {
+				try {
+					conn.rollback(); // 에러 발생 시 rollback
+				} catch (SQLException ex) {
+					ex.printStackTrace();
+				}
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} finally {
+			// 리소스 해제
+			if (rs != null) {
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (pstmt != null) {
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	@Override
+	public void readMember() {
+		List<Member> memberList = new ArrayList<>();
+		memberList = loadMember();
+		for (Member member : memberList) {
+			System.out.println("[id : " + member.getId() + "\t" + "이름 : " + member.getName() + "\t" + "가입날짜 : "
+					+ member.getSignUpDay() + "\t" + "주소 : " + member.getAddress() + "\t" + "전화번호 : "
+					+ member.getPhoneNumber() + "\t" + "생년월일 : " + member.getBirthday() + "\t" + "나이 : "
+					+ member.getAge() + "]");
+		}
+
+	}
+
+}

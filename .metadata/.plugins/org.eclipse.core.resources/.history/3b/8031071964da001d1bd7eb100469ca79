@@ -1,0 +1,5 @@
+package com.hanati.library.domian.model;
+
+public class Book {
+
+}

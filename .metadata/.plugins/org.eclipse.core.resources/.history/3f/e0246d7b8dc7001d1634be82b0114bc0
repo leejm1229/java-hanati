@@ -1,0 +1,29 @@
+package com.chapter05;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Main {
+
+	// 원하는 부분만 가지고 와서 리스트로 반환해주기
+	public static List<String> getParkList(List<String> names) {
+
+		// 람다식 로직
+		return names.stream().filter(name -> name.startsWith("박")).collect(Collectors.toList());
+
+	}
+
+	public static void main(String[] args) {
+		List<String> names = new ArrayList<>();
+		names.add("홍길동");
+		names.add("박길동");
+		names.add("김길동");
+		names.add("박동길");
+
+		List<String> parks = getParkList(names);
+		System.out.println(parks);
+
+	}
+}

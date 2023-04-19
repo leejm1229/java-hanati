@@ -1,0 +1,33 @@
+package com.chapter05;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
+public class Main {
+
+	public static void main(String[] args) {
+		List<Integer> nums = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
+
+		// 반환형이 void여야 한다.
+		// num 앞에 Integer 생략가능!
+		nums.stream().forEach((num) -> {
+			System.out.println(num);
+		});
+
+		// 스트림 생성
+		Stream<Integer> stream = nums.stream();
+
+		// 중간 연산 - filter() : 여기서는 짝수만
+		// 주어진 조건에만 만족하는 애들만 남긴다.
+		stream = stream.filter(num -> num % 2 == 0);
+
+		// 중간 연산 - map() : 값 변환
+		stream = stream.map(num -> num * 2);
+
+		// 최종 연산 - forEach() : 출력
+		stream.forEach(System.out::println);
+
+	}
+}

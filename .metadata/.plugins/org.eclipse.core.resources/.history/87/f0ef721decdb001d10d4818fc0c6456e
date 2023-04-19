@@ -1,0 +1,40 @@
+package com.hanati.library.connection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class Jdbc {
+	public Connection conn = null;
+	public PreparedStatement pstmt = null;
+	public ResultSet rs = null;
+
+	public Jdbc() {
+
+		String driver = "oracle.jdbc.driver.OracleDriver";
+		String url = "jdbc:oracle:thin:@192.168.119.119:1521:dink";
+		String user = "scott";
+		String password = "tiger";
+
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, user, password);
+			System.out.println("ddd");
+			
+			// 스크립트 파일 실행
+	        String path = System.getProperty("user.dir");
+	        String sql = "@" + path + "/library.sql";
+	        PreparedStatement pstmt = conn.prepareStatement(sql);
+	        pstmt.execute();
+	        
+
+		} catch (ClassNotFoundException e) {
+			System.out.println("jdbc driver 로딩 실패");
+		} catch (SQLException e) {
+			System.out.println("오라클 연결 실패");
+		}
+	}
+}

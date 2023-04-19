@@ -1,0 +1,24 @@
+package com.hanati.library.domian.repository;
+
+import java.util.List;
+
+import com.hanati.library.domian.model.BookLoan;
+import com.hanati.library.domian.model.Member;
+
+public interface BookLoanRepository {
+
+	List<BookLoan> loadBookLoan();
+
+	void save(List<BookLoan> member);
+
+	void createMember(Member member);
+
+	void readMember(List<Member> member);
+
+	void updateMember(Member member, int id);
+
+	void deleteMember(Member member, int id);
+
+	void rollbackMember(Member member);
+
+}

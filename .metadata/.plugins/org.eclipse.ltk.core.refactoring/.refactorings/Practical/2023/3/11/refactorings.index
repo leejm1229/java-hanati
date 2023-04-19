@@ -1,0 +1,26 @@
+1678952562707	Rename package 'collection'
+1679019304165	Rename type 'StringBox'
+1679032163063	Rename compilation unit 'ConstructionSite.java'
+1679043901563	Rename type 'Coordinate'
+1679044977142	Rename type 'Place'
+1679051701128	Rename type 'NoiseMeasurement'
+1679052442346	Rename package 'quiz'
+1679052650056	Copy compilation unit
+1679052658441	Delete element
+1679054693218	Rename type 'NoiseLevel'
+1679112132225	Rename compilation unit 'Construction.java'
+1679112362720	Encapsulate field 'point'
+1679112399566	Delete element
+1679112828039	Encapsulate field 'trees'
+1679112849342	Rename type 'TreePoints'
+1679113058020	Encapsulate field 'point'
+1679113488204	Rename type 'Point'
+1679113504894	Delete element
+1679113512967	Delete element
+1679113646510	Rename type 'Loaction'
+1679113840029	Rename type 'Location'
+1679114033077	Encapsulate field 'R'
+1679114473818	Encapsulate field 'trees'
+1679114517219	Delete element
+1679119951742	Delete element
+1679120806133	Encapsulate field 'N'
