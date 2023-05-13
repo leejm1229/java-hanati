@@ -2,8 +2,6 @@ package com.hanati.library.presentation;
 
 import java.util.Scanner;
 
-import com.hanati.library.connection.Jdbc;
-
 public class MainController {
 	Scanner scanner = new Scanner(System.in);
 	MemberController memberController;
