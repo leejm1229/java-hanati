@@ -20,9 +20,16 @@ public class CustomerRepositorylmpl implements CustomerRepository {
 	Statement stmt = null;
 
 	String driver = "oracle.jdbc.driver.OracleDriver";
+	
+	// 내가 만든 도커 
 	String url = "jdbc:oracle:thin:@localhost:1521:dink14";
 	String user = "C##scott";
 	String password = "tiger";
+	
+	// 교수님 클라우드 
+	String url2 = "jdbc:oracle:thin:@dinkdb_medium?TNS_ADMIN=/Users/lee/Documents/Cloud/Wallet_DinkDB";
+	String user2 = "DA2314"; 
+	String password2 = "Data2314";
 
 	@Override
 	public List<Customer> loadCustomer() {

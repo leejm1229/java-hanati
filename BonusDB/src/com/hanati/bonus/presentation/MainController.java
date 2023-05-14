@@ -22,7 +22,10 @@ public class MainController {
 	List<Customer> customerList = new ArrayList<>();
 	List<Emp> empList = new ArrayList<>();
 	Customer customer;;
-
+	
+	// 1은 customer 데이터를 이용하여 각 사원이 몇 명의 고객을 관리하는지 확인 후 리스트에 저장
+	// 2는 리스트를 이용하여 자바 로직을 이용하여 보너스 계산 후 리스트에 저장 
+	// 3은 보너스를 계산한 리스트를 이용하여 BONUS 테이블에 저장
 	public MainController() {
 		while (true) {
 			System.out.println("0.종료 \t 1.고객데이터 로드 \t 2.보너스 계산 \t 3.데이터 저장");

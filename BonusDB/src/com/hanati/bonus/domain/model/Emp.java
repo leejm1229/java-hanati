@@ -8,7 +8,7 @@ public class Emp {
 	private String ename;
 	private String job;
 	private int sal;
-	private int comm;
+	private int comm; // 기존 커미션 
 	private int countCustomer; // 고객관리 인원 확인
 
 	public Emp(int empno, String ename, String job, int sal, int comm, int countCustomer) {

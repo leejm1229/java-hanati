@@ -20,6 +20,7 @@ public class BonusRepositorylmpl implements BonusRepository {
 
 	@Override
 	public void saveBonus(List<Emp> empList) {
+		// 넘겨준 empList에서임시 변수에 값을 넣은 후 에 저장해준다.
 		for (Emp emp : empList) {
 			String ename = emp.getEname();
 			String job = emp.getJob();
@@ -37,7 +38,7 @@ public class BonusRepositorylmpl implements BonusRepository {
 						+ sal + ", " + comm + ")";
 				stmt.executeUpdate(sql);
 
-				conn.commit();
+				conn.commit(); // Insert 하나하나 할 때마다 커밋 
 				System.out.println("Bonus inserted for " + ename);
  
 			} catch (ClassNotFoundException e) {
