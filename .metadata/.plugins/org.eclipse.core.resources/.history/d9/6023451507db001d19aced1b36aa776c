@@ -1,9 +1,0 @@
-package com.hanati.library.presentation;
-
-public class MemberController {
-	
-	public MemberController() {
-		
-	}
-
-}

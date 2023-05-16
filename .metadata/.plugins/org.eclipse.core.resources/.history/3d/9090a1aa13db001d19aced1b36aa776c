@@ -1,5 +1,0 @@
-package com.hanati.library.domian.repository;
-
-public interface BookLoanRepository {
-
-}
