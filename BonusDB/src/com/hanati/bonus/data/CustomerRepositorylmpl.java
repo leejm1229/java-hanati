@@ -27,9 +27,9 @@ public class CustomerRepositorylmpl implements CustomerRepository {
 	String password = "tiger";
 	
 	// 교수님 클라우드 
-	String url2 = "jdbc:oracle:thin:@dinkdb_medium?TNS_ADMIN=/Users/lee/Documents/Cloud/Wallet_DinkDB";
-	String user2 = "DA2314"; 
-	String password2 = "Data2314";
+//	String url2 = "jdbc:oracle:thin:@dinkdb_medium?TNS_ADMIN=/Users/lee/Documents/Cloud/Wallet_DinkDB";
+//	String user2 = "DA2314"; 
+//	String password2 = "Data2314";
 
 	@Override
 	public List<Customer> loadCustomer() {
@@ -41,7 +41,10 @@ public class CustomerRepositorylmpl implements CustomerRepository {
 			System.out.println("Connected to database.");
 
 			stmt = conn.createStatement();
+			// fetch size 설정 
+			stmt.setFetchSize(100);
 			ResultSet rs = stmt.executeQuery("SELECT * FROM customer");
+			 
 			
 			// 고객의 데이터를 읽어오고 해쉬맵을 이용하여 해당하는 empno가 있으면 1을 더해주고 없다면 1로 초기화 해준다.
 			while (rs.next()) {

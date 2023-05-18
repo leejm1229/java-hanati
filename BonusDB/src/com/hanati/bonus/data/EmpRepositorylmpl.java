@@ -35,6 +35,7 @@ public class EmpRepositorylmpl implements EmpRepository {
 			// empno에 해당하는 컬럼을 가져온다.
 			for (Customer customer : customerList) {
 				int empno = customer.getMgr_empno();
+				System.out.println(empno);
 				stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT * FROM EMP WHERE EMPNO =" + empno);
 				
@@ -44,7 +45,7 @@ public class EmpRepositorylmpl implements EmpRepository {
 					int sal = rs.getInt("sal");
 					int comm = rs.getInt("comm");
 					// 애널리스트(Analyst)에게는 보너스 미지급
-					if (empno == 7788) {
+					if (job.equals("ANALYST")) {
 						Emp emp = new Emp(empno, ename, job, sal, comm, customer.getCount());
 						empList.add(emp);
 					}else {
@@ -96,3 +97,4 @@ public class EmpRepositorylmpl implements EmpRepository {
 	}
 
 }
+
